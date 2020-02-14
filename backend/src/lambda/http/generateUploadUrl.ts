@@ -4,7 +4,7 @@ import 'source-map-support/register'
 
 import * as AWS from 'aws-sdk'
 
-import {getUploadUrl} from '../../businessLogic/Items'
+import {getUploadUrl} from '../../businessLogic/items'
 import { createLogger } from '../../utils/logger'
 import { parseUserId } from '../../auth/utils'
 

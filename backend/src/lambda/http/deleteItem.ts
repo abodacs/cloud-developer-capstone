@@ -4,7 +4,7 @@ import 'source-map-support/register'
 
 import * as AWS from 'aws-sdk'
 
-import {deleteItem} from '../../businessLogic/Items'
+import {deleteItem} from '../../businessLogic/items'
 import { createLogger } from '../../utils/logger'
 import { parseUserId } from '../../auth/utils'
 

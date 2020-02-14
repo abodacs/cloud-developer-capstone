@@ -1,6 +1,6 @@
 import 'source-map-support/register'
 
-import {getAllItems} from '../../businessLogic/Items'
+import {getAllItems} from '../../businessLogic/items'
 
 import { createLogger } from '../../utils/logger'
 

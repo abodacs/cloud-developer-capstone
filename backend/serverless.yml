@@ -15,6 +15,7 @@ provider:
   region: ${opt:region, 'eu-west-2'}
 
   environment:
+    PROJECT_NAME: udacity-cloud-developer-capstone
     JOURNAL_ITEMS_TABLE: JOURNAL-ITEMS-${self:provider.stage}
     INDEX_NAME: itemIdIndex
     ATTACHMENT_S3_BUCKET: capstone-journal-items-images-${self:provider.stage}
@@ -32,7 +33,7 @@ custom:
       info:
         version: v1.0.0
         title: Journal API
-        description: Serverless journal application where a user can pen down their thoughts, feelings and inspired images
+        description: Serverless journal application where a user can pen down their thoughts and inspired images
     models:
       - name: CreateRequest
         contentType: "application/json"
@@ -56,12 +57,21 @@ functions:
           cors: true
           authorizer: Auth
 
+    iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-get-items-role-${self:provider.stage}
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOURNAL_ITEMS_TABLE}
-
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOURNAL_ITEMS_TABLE}/index/INDEX_NAME
+      - Effect: "Allow"
+        Action:
+          - xray:PutTelemetryRecords
+          - xray:PutTraceSegments
+        Resource: "*"       
 
   CreateItem:
     handler: src/lambda/http/createItem.handler
@@ -78,6 +88,7 @@ functions:
             requestModels:
               "application/json": CreateRequest
 
+    iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-create-item-role-${self:provider.stage}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -88,7 +99,11 @@ functions:
           - s3:PutObject
           - s3:GetObject
         Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
-
+      - Effect: "Allow"
+        Action:
+          - xray:PutTelemetryRecords
+          - xray:PutTraceSegments
+        Resource: "*"
 
   UpdateItem:
     handler: src/lambda/http/updateItem.handler
@@ -104,6 +119,7 @@ functions:
             requestModels:
               "application/json": UpdateRequest
 
+    iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-update-item-role-${self:provider.stage}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -112,9 +128,18 @@ functions:
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOURNAL_ITEMS_TABLE}
       - Effect: Allow
         Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOURNAL_ITEMS_TABLE}/index/${self:provider.environment.INDEX_NAME}
+      - Effect: Allow
+        Action:
           - s3:PutObject
         Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
-
+      - Effect: "Allow"
+        Action:
+          - xray:PutTelemetryRecords
+          - xray:PutTraceSegments
+        Resource: "*"
+  
   DeleteItem:
     handler: src/lambda/http/deleteItem.handler
     events:
@@ -123,15 +148,25 @@ functions:
           path: items/{itemId}
           cors: true
           authorizer: Auth
-
+    
+    iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-delete-item-role-${self:provider.stage}
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - dynamodb:DeleteItem
           - dynamodb:GetItem
+          - dynamodb:DeleteItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOURNAL_ITEMS_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.JOURNAL_ITEMS_TABLE}/index/${self:provider.environment.INDEX_NAME}
+      - Effect: "Allow"
+        Action:
+          - xray:PutTelemetryRecords
+          - xray:PutTraceSegments
+        Resource: "*"
 
-  GenUpUrl:
+  GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
     events:
       - http:
@@ -139,6 +174,7 @@ functions:
           path: items/{itemId}/attachment
           cors: true
           authorizer: Auth
+    iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-s3-upload-role-${self:provider.stage}
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -147,7 +183,13 @@ functions:
       - Effect: Allow
         Action:
           - s3:PutObject
+          - s3:GetObject
         Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
+      - Effect: "Allow"
+        Action:
+          - xray:PutTelemetryRecords
+          - xray:PutTraceSegments
+        Resource: "*"
 
 
 resources:
@@ -223,7 +265,7 @@ resources:
       Type: AWS::S3::BucketPolicy
       Properties:
         PolicyDocument:
-          Id: MyPolicy
+          Id: AttachmentsBucketPolicy
           Version: '2012-10-17'
           Statement:
             - Sid: PublicReadForGetBucketObjects

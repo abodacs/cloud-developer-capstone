@@ -4,7 +4,7 @@ import * as AWS from 'aws-sdk'
 
 import { UpdateItemRequest } from '../../requests/UpdateItemRequest'
 
-import {updateItem} from '../../businessLogic/Items'
+import {updateItem} from '../../businessLogic/items'
 import { createLogger } from '../../utils/logger'
 import { parseUserId } from '../../auth/utils'
 

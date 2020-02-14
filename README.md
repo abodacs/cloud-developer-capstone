@@ -45,7 +45,7 @@ To deploy an application run the following commands:
 ```
 cd backend
 npm install
-sls deploy -v
+npx serverless deploy -v
 ```
 
 ## Client
