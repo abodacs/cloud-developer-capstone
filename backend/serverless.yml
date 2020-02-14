@@ -17,7 +17,7 @@ provider:
   environment:
     JOURNAL_ITEMS_TABLE: JOURNAL-ITEMS-${self:provider.stage}
     INDEX_NAME: itemIdIndex
-    JOURNAL_ITEMS_IMAGES_S3_BUCKET: serverless-journal-items-images-v2-${self:provider.stage}
+    ATTACHMENT_S3_BUCKET: capstone-journal-items-images-${self:provider.stage}
 
   iamRoleStatements:
     - Effect: Allow
@@ -87,7 +87,7 @@ functions:
         Action:
           - s3:PutObject
           - s3:GetObject
-        Resource: arn:aws:s3:::${self:provider.environment.JOURNAL_ITEMS_IMAGES_S3_BUCKET}/*
+        Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
 
 
   UpdateItem:
@@ -113,7 +113,7 @@ functions:
       - Effect: Allow
         Action:
           - s3:PutObject
-        Resource: arn:aws:s3:::${self:provider.environment.JOURNAL_ITEMS_IMAGES_S3_BUCKET}/*
+        Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
 
   DeleteItem:
     handler: src/lambda/http/deleteItem.handler
@@ -147,7 +147,7 @@ functions:
       - Effect: Allow
         Action:
           - s3:PutObject
-        Resource: arn:aws:s3:::${self:provider.environment.JOURNAL_ITEMS_IMAGES_S3_BUCKET}/*
+        Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
 
 
 resources:
@@ -203,7 +203,7 @@ resources:
     AttachmentsBucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${self:provider.environment.JOURNAL_ITEMS_IMAGES_S3_BUCKET}
+        BucketName: ${self:provider.environment.ATTACHMENT_S3_BUCKET}
         CorsConfiguration:
           CorsRules:
             -
@@ -230,5 +230,5 @@ resources:
               Effect: Allow
               Principal: '*'
               Action: 's3:GetObject'
-              Resource: 'arn:aws:s3:::${self:provider.environment.JOURNAL_ITEMS_IMAGES_S3_BUCKET}/*'
+              Resource: 'arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*'
         Bucket: !Ref AttachmentsBucket

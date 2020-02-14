@@ -11,7 +11,7 @@ import { ItemUpdate } from '../models/ItemUpdate'
 const logger = createLogger('items')
 const itemAccess = new ItemAccess()
 
-const bucketName = process.env.JOURNAL_ITEMS_IMAGES_S3_BUCKET
+const bucketName = process.env.ATTACHMENT_S3_BUCKET
 
 export async function getAllItems(userId: string): Promise<Item[]> {
     try{

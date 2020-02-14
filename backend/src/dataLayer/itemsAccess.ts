@@ -16,15 +16,11 @@ export class ItemAccess {
   constructor(
     private readonly docClient: DocumentClient = createDynamoDBClient(),
     private readonly ItemsTable = process.env.JOURNAL_ITEMS_TABLE,
-    private readonly ItemsImageBucket = process.env.JOURNAL_ITEMS_IMAGES_S3_BUCKET) {
+    private readonly ItemsImageBucket = process.env.ATTACHMENT_S3_BUCKET) {
     }
     
 
   async getAllItems(userId: string): Promise<Item[]> {
-    console.log('Getting all Items')
-
-    console.log('userId:', userId)
-
     const result = await this.docClient.query({
       TableName: this.ItemsTable,
       KeyConditionExpression: 'userId = :u',
@@ -65,8 +61,6 @@ export class ItemAccess {
       }
       
     }).promise()
-
-    console.log('updated Item', {item: ItemId})
 
     return item
   }
